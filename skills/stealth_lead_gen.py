@@ -602,7 +602,7 @@ class SkillEngine:
             else:
                 raise ValueError(f"Unknown capability: {capability}")
                 
-asian exception as e:
+        except Exception as e:
             self.logger.error(f"Error in {capability}: {str(e)}")
             return {"error": str(e), "capability": capability}
 

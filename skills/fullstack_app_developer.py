@@ -581,7 +581,7 @@ export const {component_name} = React.forwardRef<HTMLDivElement, {component_name
         className={{cn({component_name.lower()}Variants({{ variant, size }}), className)}}
         {{...props}}
       >
-        {/* Component content */}
+        {{/* Component content */}}
       </div>
     );
   }}

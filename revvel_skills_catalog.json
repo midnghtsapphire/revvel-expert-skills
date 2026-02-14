@@ -53,6 +53,38 @@
     ],
     "domain": "legal_writing_and_advocacy"
   },
+  "government_resources": {
+    "name": "Presidential/Government Resources",
+    "version": "1.0.0",
+    "description": "Comprehensive access to U.S. federal government data sources including executive orders, federal register, congressional records, FOIA requests, grants, court records, census data, and federal budget analysis",
+    "capabilities": [
+      "executive_orders_search",
+      "federal_register_analysis",
+      "congressional_records_query",
+      "foia_request_automation",
+      "grants_gov_research",
+      "pacer_court_records",
+      "census_data_analysis",
+      "federal_budget_analysis"
+    ],
+    "domain": "government_legal_research"
+  },
+  "patent_ip": {
+    "name": "Patent & IP",
+    "version": "1.0.0",
+    "description": "Comprehensive patent and intellectual property analysis toolkit for search, prior art analysis, claim drafting, trademark search, copyright registration, and IP portfolio management",
+    "capabilities": [
+      "patent_search",
+      "prior_art_analysis",
+      "patent_claim_drafting",
+      "trademark_search",
+      "copyright_registration",
+      "ip_portfolio_management",
+      "patent_analytics",
+      "legal_status_tracking"
+    ],
+    "domain": "legal_forensic_intellectual_property"
+  },
   "victim_advocacy": {
     "name": "Victim Advocacy",
     "version": "1.0.0",
@@ -120,6 +152,22 @@
       "compliance_reporting"
     ],
     "domain": "forensic_accounting"
+  },
+  "expert_witness": {
+    "name": "Expert Witness",
+    "version": "1.0.0",
+    "description": "Comprehensive expert witness preparation and analysis system for legal proceedings, covering Daubert compliance, report generation, deposition prep, and cross-examination strategies",
+    "capabilities": [
+      "daubert_compliance_check",
+      "expert_report_generation",
+      "deposition_preparation",
+      "cross_examination_strategy",
+      "expert_qualification_analysis",
+      "testimony_admissibility_assessment",
+      "expert_discovery_compliance",
+      "rebuttal_report_creation"
+    ],
+    "domain": "Legal/Forensic Expert Testimony"
   },
   "satellite_remote_sensing": {
     "name": "Satellite & Remote Sensing",
@@ -203,6 +251,22 @@
     ],
     "domain": "Government Geospatial Data and Topography"
   },
+  "neurodegenerative": {
+    "name": "Neurodegenerative Disease Formulations",
+    "version": "1.0.0",
+    "description": "Comprehensive analysis and formulation support for neurodegenerative diseases including Parkinson's and Alzheimer's research, clinical trial matching, biomarker tracking, and treatment optimization",
+    "capabilities": [
+      "biomarker_analysis",
+      "clinical_trial_matching",
+      "drug_interaction_analysis",
+      "treatment_formulation",
+      "research_data_parsing",
+      "lifestyle_intervention_protocols",
+      "neuroprotective_compound_analysis",
+      "disease_progression_modeling"
+    ],
+    "domain": "neurodegenerative_disease_research"
+  },
   "glaucoma_ophthalmology": {
     "name": "Glaucoma & Ophthalmology",
     "version": "1.0.0",
@@ -220,6 +284,24 @@
       "progression_tracking"
     ],
     "domain": "ophthalmology"
+  },
+  "anti_aging": {
+    "name": "Anti-Aging Research & Formulations",
+    "version": "1.0.0",
+    "description": "Comprehensive analysis and formulation tools for anti-aging research including telomere biology, NAD+ precursors, senolytics, epigenetic clocks, and clinical trial data mining.",
+    "capabilities": [
+      "telomere_length_analysis",
+      "nad_precursor_formulation",
+      "senolytic_compound_analysis",
+      "epigenetic_clock_calculation",
+      "clinical_trial_search",
+      "supplement_interaction_check",
+      "peptide_therapy_research",
+      "mitochondrial_support_analysis",
+      "skin_aging_compound_evaluation",
+      "caloric_restriction_mimetic profiling"
+    ],
+    "domain": "longevity_geroscience"
   },
   "lidar_expert": {
     "name": "LiDAR Expert",
@@ -290,6 +372,23 @@
     ],
     "domain": "forensic_geophysics"
   },
+  "cardiovascular": {
+    "name": "Cardiovascular Disease Research",
+    "version": "1.0.0",
+    "description": "Comprehensive cardiovascular disease research module for risk modeling, lipid analysis, biomarker evaluation, therapy recommendations, and lifestyle interventions.",
+    "capabilities": [
+      "heart_disease_risk_modeling",
+      "lipid_panel_analysis",
+      "cardiac_biomarker_evaluation",
+      "statin_alternatives_recommendation",
+      "emerging_therapies_analysis",
+      "lifestyle_intervention_protocols",
+      "cardiac_imaging_analysis",
+      "arrhythmia_detection",
+      "blood_pressure_optimization"
+    ],
+    "domain": "cardiovascular_medicine"
+  },
   "medical_expert_witness": {
     "name": "Medical Expert Witness",
     "version": "1.0.0",
@@ -313,6 +412,72 @@
       "medical_board_standards"
     ],
     "domain": "legal_medical_expertise"
+  },
+  "medical_doctor": {
+    "name": "Medical Doctor / Physician Expert",
+    "version": "1.0.0",
+    "description": "Comprehensive medical diagnostic reasoning engine with differential diagnosis generation, ICD/CPT coding, drug interaction checking, lab interpretation, radiology/pathology analysis, clinical guidelines, and evidence-based medicine search capabilities.",
+    "capabilities": [
+      "differential_diagnosis",
+      "icd_code_lookup",
+      "cpt_code_analysis",
+      "drug_interaction_check",
+      "lab_result_interpretation",
+      "radiology_report_interpretation",
+      "pathology_report_analysis",
+      "medical_record_review",
+      "treatment_protocol_lookup",
+      "clinical_guidelines_search",
+      "pharmacology_reference",
+      "anatomy_reference",
+      "surgical_procedure_lookup",
+      "medical_terminology_decode",
+      "patient_history_analysis",
+      "vital_signs_trending",
+      "medical_calculators",
+      "evidence_based_medicine_search",
+      "telemedicine_protocols"
+    ],
+    "domain": "healthcare"
+  },
+  "nanotech_surgery": {
+    "name": "Nanotech Surgery & Skin Repair Expert",
+    "version": "1.0.0",
+    "description": "Expert system for nanotechnology applications in surgery and skin repair, covering nanoparticle drug delivery, nano-surgical tools, skin regeneration, tattoo removal, scar revision, anti-aging, burns treatment, clinical trials, safety assessment, formulation calculations, research tracking, patents, and cost modeling.",
+    "capabilities": [
+      "nanoparticle_drug_delivery_analysis",
+      "nano_surgical_tools_evaluation",
+      "skin_repair_regeneration_protocols",
+      "tattoo_removal_nanotech_planning",
+      "scar_revision_nanotech_assessment",
+      "anti_aging_nanotech_recommendations",
+      "burns_treatment_nanotech_protocols",
+      "clinical_trial_database_query",
+      "safety_toxicology_assessment",
+      "formulation_calculator",
+      "research_tracker",
+      "patent_landscape_analysis",
+      "cost_modeling_comparison"
+    ],
+    "domain": "medical_nanotechnology"
+  },
+  "hawaiian_genealogy": {
+    "name": "Hawaiian History & Genealogy Expert",
+    "version": "1.0.0",
+    "description": "Deep Hawaiian cultural and genealogical knowledge spanning Kingdom history, Ali'i genealogy, land records, language resources, and Polynesian migration patterns",
+    "capabilities": [
+      "Ali'i genealogy lineage tracking",
+      "Mahele land record analysis",
+      "Hawaiian language translation and parsing",
+      "Blood quantum calculation",
+      "Polynesian DNA haplogroup analysis",
+      "Plantation era immigration record search",
+      "Church record extraction",
+      "Newspaper archive search",
+      "Place name etymology",
+      "Cultural protocol guidance"
+    ],
+    "domain": "Hawaiian cultural heritage, genealogy, and historical research"
   },
   "precog_analysis": {
     "name": "Precognitive Analysis Tool (PRECOG)",
@@ -376,6 +541,24 @@
     ],
     "domain": "transplant_surgery_reconstructive"
   },
+  "advanced_manufacturing": {
+    "name": "Expert 3D Printing & Advanced Manufacturing",
+    "version": "1.0.0",
+    "description": "Comprehensive 3D printing and advanced manufacturing optimization covering FDM/SLA/SLS/DLP/DMLS, injection molding, CNC integration, generative design, cost estimation, and quality control.",
+    "capabilities": [
+      "gcode_generation",
+      "print_optimization",
+      "injection_mold_design",
+      "mold_flow_simulation",
+      "cost_estimation",
+      "quality_control_protocols",
+      "topology_optimization",
+      "print_farm_management",
+      "material_testing",
+      "post_processing_analysis"
+    ],
+    "domain": "advanced_manufacturing"
+  },
   "web_scraper": {
     "name": "UnrestrictedWebScraper",
     "version": "1.0.0",
@@ -398,6 +581,13 @@
       "stealth_mode",
       "bulk_export"
     ],
+    "domain": "general"
+  },
+  "biocomposites_formulation": {
+    "name": "Biocomposites & Eco-Materials Formulation Expert",
+    "version": "1.0.0",
+    "description": "Novel material formulation engine for basalt fiber composites, taro-based biopolymers, and eco-friendly resin systems with LCA, cost, and compliance analysis.",
+    "capabilities": [],
     "domain": "general"
   },
   "trafficking_intel": {
@@ -484,6 +674,29 @@
     ],
     "domain": "telecommunications"
   },
+  "epstein_files_intel": {
+    "name": "Epstein Files Intelligence Analysis & Data Scraper",
+    "version": "1.0.0",
+    "description": "Comprehensive investigative tool for Jeffrey Epstein case files with document analysis, relationship mapping, social media intelligence, and fact verification capabilities",
+    "capabilities": [
+      "Court document scraping and OCR",
+      "Redacted text recovery via metadata analysis",
+      "Flight log analysis and passenger mapping",
+      "Black book contact database extraction",
+      "Deposition transcript entity extraction",
+      "Financial records analysis",
+      "PACER court record scraping",
+      "Social network graph building",
+      "Timeline construction and visualization",
+      "Geographic mapping of properties and locations",
+      "Corporate structure mapping",
+      "Social media intelligence gathering",
+      "Fact verification and credibility scoring",
+      "Evidence chain building",
+      "Automated report generation"
+    ],
+    "domain": "legal_forensic_investigation"
+  },
   "stealth_inventory": {
     "name": "Stealth Inventory Tracker & Amazon/Vine Silent Scraper",
     "version": "1.0.0",
@@ -537,6 +750,26 @@
     ],
     "domain": "business_automation"
   },
+  "stealth_lead_gen": {
+    "name": "Stealth Lead Generator \u2014 Insurance & Life Events",
+    "version": "1.0.0",
+    "description": "Advanced stealth scraping and lead generation for insurance life events including death, marriage, birth, property, business, retirement, and health-related triggers with full campaign management and compliance tracking",
+    "capabilities": [
+      "death_registry_scraping",
+      "marriage_registry_scraping",
+      "birth_registry_scraping",
+      "property_transfer_scraping",
+      "business_filing_scraping",
+      "obituary_aggregation",
+      "court_record_scraping",
+      "campaign_automation",
+      "lead_scoring",
+      "data_enrichment",
+      "compliance_tracking",
+      "roi_analysis"
+    ],
+    "domain": "insurance_lead_generation"
+  },
   "tax_automation": {
     "name": "Expert Tax Automation & Multi-Business Strategist",
     "version": "1.0.0",
@@ -566,5 +799,31 @@
       "Annual compliance calendar management"
     ],
     "domain": "tax_automation_multi_business_optimization"
+  },
+  "fullstack_app_developer": {
+    "name": "Expert Full-Stack App Developer \u2014 Soup to Nuts",
+    "version": "1.0.0",
+    "description": "Complete full-stack application development from zero to production deployment. Covers UI/UX design with glassmorphism and neurodivergent-friendly patterns, React/TypeScript frontend, Express/tRPC backend, PostgreSQL, authentication, payments, mobile apps, testing, deployment, and green engineering practices.",
+    "capabilities": [
+      "glassmorphism_design_system",
+      "neurodivergent_friendly_ui",
+      "no_blue_light_mode",
+      "wcag_aaa_accessibility",
+      "react_typescript_frontend",
+      "express_trpc_backend",
+      "postgresql_database",
+      "stripe_payments",
+      "oauth_authentication",
+      "mobile_react_native",
+      "docker_deployment",
+      "ci_cd_pipeline",
+      "testing_suite",
+      "seo_optimization",
+      "green_engineering",
+      "project_scaffolding",
+      "code_generation",
+      "deployment_automation"
+    ],
+    "domain": "full_stack_application_development"
   }
 }

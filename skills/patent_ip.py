@@ -513,7 +513,7 @@ class SkillEngine:
             return search_results
             
         except Exception as e:
-            logger.error(f"Trademark search error: {(str(e)}")
+            logger.error(f"Trademark search error: {str(e)}")
             return {'error': str(e)}
     
     def copyright_registration(self, work_data: Dict[str, Any]) -> Dict[str, Any]:

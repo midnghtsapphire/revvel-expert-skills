@@ -269,4 +269,209 @@ def generate_expert_timeline(events: List[Dict[str, Any]]) -> str:
     for event in sorted_events:
         date = event.get('date', 'Unknown')
         activity = event.get('activity', '')
-        description = event.get('description
+        description = event.get('description', '')
+        timeline += f"[{date}] {activity}\n"
+        if description:
+            timeline += f"  Details: {description}\n"
+        timeline += "\n"
+    
+    return timeline
+
+
+def prepare_cross_examination(expert_profile: Dict[str, Any], opposing_claims: List[str]) -> Dict[str, Any]:
+    """Prepare cross-examination strategy for opposing expert."""
+    strategies = []
+    
+    # Check for bias indicators
+    if expert_profile.get('percentage_plaintiff', 0) > 80:
+        strategies.append({
+            'type': 'bias',
+            'question': 'Isn\'t it true that over 80% of your work is for plaintiff attorneys?',
+            'goal': 'Establish potential bias'
+        })
+    
+    if expert_profile.get('percentage_defendant', 0) > 80:
+        strategies.append({
+            'type': 'bias',
+            'question': 'Isn\'t it true that over 80% of your work is for defense attorneys?',
+            'goal': 'Establish potential bias'
+        })
+    
+    # Check methodology weaknesses
+    if not expert_profile.get('peer_reviewed', False):
+        strategies.append({
+            'type': 'methodology',
+            'question': 'Your methodology has not been peer-reviewed, correct?',
+            'goal': 'Challenge reliability under Daubert'
+        })
+    
+    # Check for contradictions with opposing claims
+    for claim in opposing_claims:
+        strategies.append({
+            'type': 'contradiction',
+            'question': f'How do you reconcile your opinion with the finding that {claim}?',
+            'goal': 'Highlight inconsistencies'
+        })
+    
+    return {
+        'total_strategies': len(strategies),
+        'strategies': strategies,
+        'recommended_order': ['bias', 'methodology', 'contradiction']
+    }
+
+
+def generate_deposition_outline(case_type: str, expert_field: str, key_issues: List[str]) -> Dict[str, Any]:
+    """Generate a deposition outline for expert witness examination."""
+    outline = {
+        'case_type': case_type,
+        'expert_field': expert_field,
+        'sections': []
+    }
+    
+    # Standard sections
+    outline['sections'].append({
+        'title': 'Qualifications and Background',
+        'questions': [
+            'State your full name and professional address.',
+            'Describe your educational background.',
+            'List your professional certifications.',
+            f'How long have you practiced in {expert_field}?',
+            'How many times have you testified as an expert?'
+        ]
+    })
+    
+    outline['sections'].append({
+        'title': 'Engagement and Compensation',
+        'questions': [
+            'Who retained you in this matter?',
+            'What is your hourly rate for this engagement?',
+            'What is your total compensation to date?',
+            'What materials did you review?'
+        ]
+    })
+    
+    # Issue-specific sections
+    for issue in key_issues:
+        outline['sections'].append({
+            'title': f'Analysis of {issue}',
+            'questions': [
+                f'What is your opinion regarding {issue}?',
+                f'What methodology did you use to analyze {issue}?',
+                f'What facts support your conclusion about {issue}?',
+                f'Are there alternative explanations for {issue}?'
+            ]
+        })
+    
+    return outline
+
+
+class SkillEngine:
+    """Expert Witness skill engine."""
+    
+    def __init__(self):
+        self.name = SKILL_METADATA['name']
+        self.version = SKILL_METADATA['version']
+    
+    def run(self, action: str, **kwargs) -> Dict[str, Any]:
+        actions = {
+            'daubert_check': lambda: assess_daubert_compliance(**kwargs),
+            'generate_report': lambda: generate_expert_report(**kwargs),
+            'cross_exam': lambda: prepare_cross_examination(**kwargs),
+            'deposition': lambda: generate_deposition_outline(**kwargs),
+            'timeline': lambda: generate_expert_timeline(**kwargs),
+            'credibility': lambda: calculate_expert_credibility(**kwargs),
+        }
+        if action in actions:
+            return actions[action]()
+        return {'error': f'Unknown action: {action}'}
+
+
+class TestExpertWitness(unittest.TestCase):
+    """Unit tests for Expert Witness skill."""
+    
+    def test_metadata(self):
+        self.assertEqual(SKILL_METADATA['id'], 'expert_witness')
+        self.assertIn('daubert_compliance_check', SKILL_METADATA['capabilities'])
+    
+    def test_daubert_compliance(self):
+        result = assess_daubert_compliance(
+            methodology='Peer-reviewed statistical analysis',
+            peer_reviewed=True,
+            error_rate=0.03,
+            testable=True,
+            general_acceptance=True
+        )
+        self.assertIn('overall_score', result)
+        self.assertGreater(result['overall_score'], 0)
+    
+    def test_expert_report(self):
+        result = generate_expert_report(
+            expert_name='Dr. Smith',
+            case_number='2024-CV-001',
+            expert_field='Forensic Accounting',
+            opinions=['Defendant committed fraud'],
+            methodology='Statistical analysis of financial records',
+            facts_relied_upon=['Bank statements', 'Tax returns']
+        )
+        self.assertIn('report_text', result)
+        self.assertIn('Dr. Smith', result['report_text'])
+    
+    def test_credibility_score(self):
+        score = calculate_expert_credibility(
+            years_experience=20,
+            publications=15,
+            prior_testimony_count=30,
+            daubert_challenges_survived=8,
+            daubert_challenges_total=10,
+            peer_reviewed=True,
+            error_rate=0.02,
+            general_acceptance=True
+        )
+        self.assertIsInstance(score, float)
+        self.assertGreaterEqual(score, 0)
+        self.assertLessEqual(score, 100)
+    
+    def test_cross_examination(self):
+        result = prepare_cross_examination(
+            expert_profile={'percentage_plaintiff': 90, 'peer_reviewed': False},
+            opposing_claims=['The data was incomplete']
+        )
+        self.assertIn('strategies', result)
+        self.assertGreater(result['total_strategies'], 0)
+    
+    def test_deposition_outline(self):
+        result = generate_deposition_outline(
+            case_type='Medical Malpractice',
+            expert_field='Cardiology',
+            key_issues=['Standard of care', 'Causation']
+        )
+        self.assertIn('sections', result)
+        self.assertGreater(len(result['sections']), 2)
+    
+    def test_timeline(self):
+        events = [
+            {'date': '2024-01-15', 'activity': 'Retained', 'description': 'Initial engagement'},
+            {'date': '2024-02-20', 'activity': 'Report Filed', 'description': 'Expert report submitted'}
+        ]
+        result = generate_expert_timeline(events)
+        self.assertIn('2024-01-15', result)
+        self.assertIn('Retained', result)
+    
+    def test_empty_timeline(self):
+        result = generate_expert_timeline([])
+        self.assertIn('TIMELINE', result)
+    
+    def test_prompts_exist(self):
+        self.assertIn('daubert_analysis', EXPERT_PROMPTS)
+        self.assertIn('expert_report_draft', EXPERT_PROMPTS)
+    
+    def test_skill_engine(self):
+        engine = SkillEngine()
+        self.assertEqual(engine.name, 'Expert Witness')
+    
+    def test_integration_points(self):
+        self.assertIn('pacer', INTEGRATION_POINTS)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Revvel Expert Skills - Main Application
-A comprehensive suite of 39 expert-level skills for legal, forensic, medical, and investigative work.
+A comprehensive suite of 40 expert-level skills for legal, forensic, medical, and investigative work.
 Built with Kimo (kimi-k2) via OpenRouter.
 """
 import os

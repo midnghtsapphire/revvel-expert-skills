@@ -279,4 +279,99 @@ def calculate_cooling_time(
 def generate_quality_report(
     measurements: List[float],
     tolerance: float,
-    specification:
+    specification: float = None
+) -> Dict[str, Any]:
+    """Generate quality control report for manufacturing measurements."""
+    if not measurements:
+        return {'error': 'No measurements provided'}
+    
+    mean_val = statistics.mean(measurements)
+    std_dev = statistics.stdev(measurements) if len(measurements) > 1 else 0.0
+    min_val = min(measurements)
+    max_val = max(measurements)
+    range_val = max_val - min_val
+    
+    # Capability analysis
+    if specification is not None and std_dev > 0:
+        usl = specification + tolerance
+        lsl = specification - tolerance
+        cp = (usl - lsl) / (6 * std_dev)
+        cpk = min((usl - mean_val) / (3 * std_dev), (mean_val - lsl) / (3 * std_dev))
+    else:
+        cp = None
+        cpk = None
+    
+    # Count out-of-tolerance
+    if specification is not None:
+        oot_count = sum(1 for m in measurements if abs(m - specification) > tolerance)
+    else:
+        oot_count = 0
+    
+    return {
+        'sample_size': len(measurements),
+        'mean': round(mean_val, 6),
+        'std_deviation': round(std_dev, 6),
+        'min': round(min_val, 6),
+        'max': round(max_val, 6),
+        'range': round(range_val, 6),
+        'tolerance': tolerance,
+        'specification': specification,
+        'cp': round(cp, 3) if cp is not None else None,
+        'cpk': round(cpk, 3) if cpk is not None else None,
+        'out_of_tolerance_count': oot_count,
+        'pass_rate_pct': round((len(measurements) - oot_count) / len(measurements) * 100, 2)
+    }
+
+
+class SkillEngine:
+    """Mechanical Engineering & Materials Science skill engine."""
+    
+    def __init__(self):
+        self.name = SKILL_METADATA['name']
+        self.version = SKILL_METADATA['version']
+    
+    def run(self, action: str, **kwargs) -> Dict[str, Any]:
+        actions = {
+            'quality_report': lambda: generate_quality_report(**kwargs),
+        }
+        if action in actions:
+            return actions[action]()
+        return {'error': f'Unknown action: {action}'}
+
+
+class TestAdvancedManufacturing(unittest.TestCase):
+    """Unit tests for Mechanical Engineering skill."""
+    
+    def test_metadata(self):
+        self.assertEqual(SKILL_METADATA['id'], 'advanced_manufacturing')
+    
+    def test_quality_report(self):
+        measurements = [10.01, 10.02, 9.99, 10.00, 10.03, 9.98]
+        result = generate_quality_report(measurements, tolerance=0.05, specification=10.0)
+        self.assertIn('mean', result)
+        self.assertIn('cp', result)
+        self.assertIn('cpk', result)
+        self.assertEqual(result['out_of_tolerance_count'], 0)
+    
+    def test_quality_report_failures(self):
+        measurements = [10.0, 10.1, 10.2, 9.8, 9.7]
+        result = generate_quality_report(measurements, tolerance=0.05, specification=10.0)
+        self.assertGreater(result['out_of_tolerance_count'], 0)
+    
+    def test_empty_measurements(self):
+        result = generate_quality_report([], tolerance=0.05)
+        self.assertIn('error', result)
+    
+    def test_prompts_exist(self):
+        self.assertGreater(len(EXPERT_PROMPTS), 0)
+    
+    def test_integration_points(self):
+        self.assertIn('matweb', INTEGRATION_POINTS)
+    
+    def test_skill_engine(self):
+        engine = SkillEngine()
+        self.assertEqual(engine.name, 'Mechanical Engineering & Materials Science Expert')
+
+
+if __name__ == '__main__':
+    unittest.main()

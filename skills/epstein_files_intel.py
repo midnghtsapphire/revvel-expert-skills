@@ -1114,7 +1114,7 @@ Jane Smith    555-5678    jane@email.com    456 Oak Ave    Personal"""
         self.assertEqual(contacts[0].name, "John Doe")
         self.assertEqual(contacts[1].phone, "555-5678")
     
- def test_entity_extraction(self):
+    def test_entity_extraction(self):
         """Test entity extraction from text"""
         sample_text = "Jeffrey Epstein and Ghislaine Maxwell met with Bill Clinton on Little St James in January 2024."
         

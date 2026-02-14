@@ -156,7 +156,7 @@ def parse_mahele_award(text: str) -> Dict[str, Any]:
     claimant = name_match.group(1).strip() if name_match else "Unknown"
     
     # Extract location
-    location_match = re.search(r'(?:Ahupua[ʻ']a|Location):?\s*([^\n]+)', text, re.IGNORECASE)
+    location_match = re.search(r'(?:Ahupua.a|Location):?\s*([^\n]+)', text, re.IGNORECASE)
     location = location_match.group(1).strip() if location_match else "Unknown"
     
     return {
@@ -179,4 +179,67 @@ def analyze_polynesian_haplogroup(haplogroup: str) -> Dict[str, Any]:
         "M7": {"origin": "Southeast Asia", "migration": "3,500-2,500 BCE", "region": "Western Polynesia"}
     }
     
-    if haplogroup in polynesian
+    if haplogroup in polynesian_haplogroups:
+        info = polynesian_haplogroups[haplogroup]
+        return {
+            'haplogroup': haplogroup,
+            'found': True,
+            'origin': info['origin'],
+            'migration_period': info['migration'],
+            'region': info['region'],
+            'polynesian_connection': True
+        }
+    
+    return {
+        'haplogroup': haplogroup,
+        'found': False,
+        'polynesian_connection': False,
+        'note': 'Haplogroup not in Polynesian migration database'
+    }
+
+
+class SkillEngine:
+    """Hawaiian History & Genealogy skill engine."""
+    
+    def __init__(self):
+        self.name = SKILL_METADATA['name']
+        self.version = SKILL_METADATA['version']
+    
+    def run(self, action: str, **kwargs) -> Dict[str, Any]:
+        actions = {
+            'parse_lca': lambda: parse_land_commission_award(**kwargs),
+            'haplogroup': lambda: analyze_polynesian_haplogroup(**kwargs),
+        }
+        if action in actions:
+            return actions[action]()
+        return {'error': f'Unknown action: {action}'}
+
+
+class TestHawaiianGenealogy(unittest.TestCase):
+    """Unit tests for Hawaiian History & Genealogy skill."""
+    
+    def test_metadata(self):
+        self.assertEqual(SKILL_METADATA['id'], 'hawaiian_genealogy')
+    
+    def test_haplogroup_known(self):
+        result = analyze_polynesian_haplogroup('B4A1A1')
+        self.assertTrue(result['found'])
+        self.assertTrue(result['polynesian_connection'])
+    
+    def test_haplogroup_unknown(self):
+        result = analyze_polynesian_haplogroup('R1B')
+        self.assertFalse(result['found'])
+    
+    def test_prompts_exist(self):
+        self.assertGreater(len(EXPERT_PROMPTS), 0)
+    
+    def test_integration_points(self):
+        self.assertIn('papakilo', INTEGRATION_POINTS)
+    
+    def test_skill_engine(self):
+        engine = SkillEngine()
+        self.assertEqual(engine.name, 'Hawaiian History & Genealogy Expert')
+
+
+if __name__ == '__main__':
+    unittest.main()

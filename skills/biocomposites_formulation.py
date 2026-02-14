@@ -110,12 +110,12 @@ def predict_elastic_modulus(form: Formulation) -> float:
     return Vf * Ef + Vm * Em
 
 def predict_density(form: Formulation) -> float:
-    all comp = {**form.fibers, **form.matrix, **form.additives}
-    dens = {k: BiopolymerDB.get(k).density for k in comp}
-    total = sum(comp.values())
+    all_comp = {**form.fibers, **form.matrix, **form.additives}
+    dens = {k: BiopolymerDB.get(k).density for k in all_comp}
+    total = sum(all_comp.values())
     if total == 0:
         return 0
-    return rule_of_mixtures(comp, dens) / total
+    return rule_of_mixtures(all_comp, dens) / total
 
 def lca_ghg(form: Formulation) -> float:
     all_comp = {**form.fibers, **form.matrix, **form.additives}

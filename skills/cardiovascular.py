@@ -252,4 +252,191 @@ def analyze_lipid_panel(total_chol: float, ldl: float, hdl: float, tg: float,
     return {
         "lipid_values": {
             "total_cholesterol": total_chol,
-            "ldl
+            "ldl": ldl,
+            "hdl": hdl,
+            "triglycerides": tg,
+            "non_hdl": round(non_hdl, 1),
+            "remnant_cholesterol": round(remnant_chol, 1)
+        },
+        "ratios": {
+            "total_chol_hdl": round(chol_hdl_ratio, 2),
+            "ldl_hdl": round(ldl_hdl_ratio, 2),
+            "tg_hdl": round(tg_hdl_ratio, 2)
+        },
+        "classifications": {
+            "ldl": ldl_category,
+            "hdl": hdl_category,
+            "triglycerides": tg_category
+        },
+        "fasting": fasting
+    }
+
+
+def calculate_framingham_risk(age: int, sex: str, total_chol: float, hdl: float,
+                              systolic_bp: float, bp_treated: bool = False,
+                              smoker: bool = False, diabetic: bool = False) -> Dict[str, Any]:
+    """Calculate 10-year cardiovascular risk using Framingham Risk Score."""
+    if sex.lower() not in ('male', 'female'):
+        raise ValueError("Sex must be 'male' or 'female'")
+    
+    points = 0
+    
+    # Age points
+    if sex.lower() == 'male':
+        if age < 35: points += -9
+        elif age < 40: points += -4
+        elif age < 45: points += 0
+        elif age < 50: points += 3
+        elif age < 55: points += 6
+        elif age < 60: points += 8
+        elif age < 65: points += 10
+        elif age < 70: points += 11
+        else: points += 12
+    else:
+        if age < 35: points += -7
+        elif age < 40: points += -3
+        elif age < 45: points += 0
+        elif age < 50: points += 3
+        elif age < 55: points += 6
+        elif age < 60: points += 8
+        elif age < 65: points += 10
+        elif age < 70: points += 12
+        else: points += 14
+    
+    # Cholesterol points
+    if total_chol < 160: points += 0
+    elif total_chol < 200: points += 1
+    elif total_chol < 240: points += 2
+    elif total_chol < 280: points += 3
+    else: points += 4
+    
+    # HDL points
+    if hdl >= 60: points += -1
+    elif hdl >= 50: points += 0
+    elif hdl >= 40: points += 1
+    else: points += 2
+    
+    # Blood pressure
+    if systolic_bp < 120: points += 0
+    elif systolic_bp < 130: points += 1 if not bp_treated else 2
+    elif systolic_bp < 140: points += 1 if not bp_treated else 2
+    elif systolic_bp < 160: points += 2 if not bp_treated else 3
+    else: points += 3 if not bp_treated else 4
+    
+    if smoker: points += 2
+    if diabetic: points += 2
+    
+    # Approximate risk percentage
+    risk_table = {-3: 1, -2: 1, -1: 2, 0: 3, 1: 4, 2: 5, 3: 6, 4: 8,
+                  5: 10, 6: 12, 7: 14, 8: 16, 9: 20, 10: 25, 11: 30}
+    risk_pct = risk_table.get(min(max(points, -3), 11), 30)
+    
+    risk_category = 'low' if risk_pct < 10 else 'moderate' if risk_pct < 20 else 'high'
+    
+    return {
+        'total_points': points,
+        'ten_year_risk_percent': risk_pct,
+        'risk_category': risk_category,
+        'factors': {
+            'age': age, 'sex': sex, 'total_cholesterol': total_chol,
+            'hdl': hdl, 'systolic_bp': systolic_bp, 'bp_treated': bp_treated,
+            'smoker': smoker, 'diabetic': diabetic
+        }
+    }
+
+
+def recommend_statin_alternatives(ldl: float, risk_category: str,
+                                   statin_intolerant: bool = False) -> List[Dict[str, Any]]:
+    """Recommend statin alternatives based on patient profile."""
+    alternatives = []
+    
+    if statin_intolerant or risk_category == 'high':
+        alternatives.append({
+            'drug_class': 'PCSK9 Inhibitors',
+            'examples': ['Evolocumab (Repatha)', 'Alirocumab (Praluent)'],
+            'ldl_reduction': '50-60%',
+            'mechanism': 'Monoclonal antibodies that increase LDL receptor recycling'
+        })
+    
+    alternatives.append({
+        'drug_class': 'Ezetimibe',
+        'examples': ['Zetia'],
+        'ldl_reduction': '15-20%',
+        'mechanism': 'Blocks cholesterol absorption in small intestine'
+    })
+    
+    alternatives.append({
+        'drug_class': 'Bempedoic Acid',
+        'examples': ['Nexletol'],
+        'ldl_reduction': '15-25%',
+        'mechanism': 'ACL inhibitor upstream of HMG-CoA reductase'
+    })
+    
+    if ldl > 190:
+        alternatives.append({
+            'drug_class': 'Inclisiran (RNA Therapeutics)',
+            'examples': ['Leqvio'],
+            'ldl_reduction': '50%',
+            'mechanism': 'siRNA targeting PCSK9 mRNA — twice yearly injection'
+        })
+    
+    return alternatives
+
+
+class SkillEngine:
+    """Cardiovascular Disease Research skill engine."""
+    
+    def __init__(self):
+        self.name = SKILL_METADATA['name']
+        self.version = SKILL_METADATA['version']
+    
+    def run(self, action: str, **kwargs) -> Dict[str, Any]:
+        actions = {
+            'lipid_panel': lambda: analyze_lipid_panel(**kwargs),
+            'framingham_risk': lambda: calculate_framingham_risk(**kwargs),
+            'statin_alternatives': lambda: recommend_statin_alternatives(**kwargs),
+        }
+        if action in actions:
+            return actions[action]()
+        return {'error': f'Unknown action: {action}'}
+
+
+class TestCardiovascular(unittest.TestCase):
+    """Unit tests for Cardiovascular Disease Research skill."""
+    
+    def test_metadata(self):
+        self.assertEqual(SKILL_METADATA['id'], 'cardiovascular')
+    
+    def test_lipid_panel(self):
+        result = analyze_lipid_panel(total_chol=200, ldl=120, hdl=55, tg=150)
+        self.assertIn('lipid_values', result)
+        self.assertIn('ratios', result)
+        self.assertIn('classifications', result)
+    
+    def test_lipid_panel_invalid(self):
+        with self.assertRaises(ValueError):
+            analyze_lipid_panel(total_chol=10, ldl=120, hdl=55, tg=150)
+    
+    def test_framingham_risk(self):
+        result = calculate_framingham_risk(
+            age=55, sex='male', total_chol=220, hdl=45,
+            systolic_bp=140, smoker=True
+        )
+        self.assertIn('ten_year_risk_percent', result)
+        self.assertIn('risk_category', result)
+    
+    def test_statin_alternatives(self):
+        result = recommend_statin_alternatives(ldl=200, risk_category='high', statin_intolerant=True)
+        self.assertIsInstance(result, list)
+        self.assertGreater(len(result), 0)
+    
+    def test_skill_engine(self):
+        engine = SkillEngine()
+        self.assertEqual(engine.name, 'Cardiovascular Disease Research')
+    
+    def test_prompts_exist(self):
+        self.assertGreater(len(EXPERT_PROMPTS), 0)
+
+
+if __name__ == '__main__':
+    unittest.main()

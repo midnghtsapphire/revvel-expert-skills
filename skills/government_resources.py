@@ -547,7 +547,7 @@ class TestGovernmentResourcesSkill(unittest.TestCase):
             else:
                 self.assertFalse(result['parsed'])
     
-    def test_validate_federal citation(self):
+    def test_validate_federal_citation(self):
         """Test Federal Register citation validation."""
         valid_citation = "88 Fed. Reg. 12345 (January 15, 2023)"
         result = validate_federal_register_citation(valid_citation)

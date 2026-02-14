@@ -338,4 +338,91 @@ def calculate_neuroprotective_score(compounds: List[str], target_pathways: List[
         compound_lower = compound.lower().replace("-", "").replace("_", "")
         if compound_lower in efficacy_data:
             compound_scores = efficacy_data[compound_lower]
-            total_score = sum(compound_scores.get(pathway,
+            total_score = sum(compound_scores.get(pathway, 0.0) for pathway in target_pathways)
+            scores[compound] = round(total_score / max(len(target_pathways), 1), 3)
+        else:
+            scores[compound] = 0.0
+    
+    return scores
+
+
+class SkillEngine:
+    """Neurodegenerative Disease Formulations skill engine."""
+    
+    def __init__(self):
+        self.name = SKILL_METADATA['name']
+        self.version = SKILL_METADATA['version']
+    
+    def run(self, action: str, **kwargs) -> Dict[str, Any]:
+        actions = {
+            'biomarker_tracking': lambda: track_biomarkers(**kwargs),
+            'drug_interaction': lambda: check_drug_interactions(**kwargs),
+            'clinical_trial': lambda: search_clinical_trials(**kwargs),
+            'neuroprotective_score': lambda: calculate_neuroprotective_score(**kwargs),
+            'lifestyle_protocol': lambda: generate_lifestyle_protocol(**kwargs),
+        }
+        if action in actions:
+            return actions[action]()
+        return {'error': f'Unknown action: {action}'}
+
+
+class TestNeurodegenerative(unittest.TestCase):
+    """Unit tests for Neurodegenerative Disease skill."""
+    
+    def test_metadata(self):
+        self.assertEqual(SKILL_METADATA['id'], 'neurodegenerative')
+    
+    def test_neuroprotective_score(self):
+        result = calculate_neuroprotective_score(
+            compounds=['curcumin', 'omega3'],
+            target_pathways=['anti-inflammatory', 'oxidative_stress']
+        )
+        self.assertIn('curcumin', result)
+        self.assertGreater(result['curcumin'], 0)
+    
+    def test_unknown_compound(self):
+        result = calculate_neuroprotective_score(
+            compounds=['unknown_drug'],
+            target_pathways=['anti-inflammatory']
+        )
+        self.assertEqual(result['unknown_drug'], 0.0)
+    
+    def test_lifestyle_protocol(self):
+        result = generate_lifestyle_protocol(
+            disease_type='parkinsons',
+            patient_age=65,
+            comorbidities=[]
+        )
+        self.assertIn('exercise', result)
+        self.assertIn('diet', result)
+    
+    def test_prompts_exist(self):
+        self.assertGreater(len(EXPERT_PROMPTS), 0)
+    
+    def test_integration_points(self):
+        self.assertIn('pubmed', INTEGRATION_POINTS)
+    
+    def test_skill_engine(self):
+        engine = SkillEngine()
+        self.assertEqual(engine.name, 'Neurodegenerative Disease Formulations')
+    
+    def test_engine_unknown_action(self):
+        engine = SkillEngine()
+        result = engine.run('nonexistent')
+        self.assertIn('error', result)
+    
+    def test_elderly_protocol(self):
+        result = generate_lifestyle_protocol(
+            disease_type='alzheimers',
+            patient_age=80,
+            comorbidities=['diabetes']
+        )
+        self.assertEqual(result['exercise']['intensity'], 'light-moderate')
+    
+    def test_empty_compounds(self):
+        result = calculate_neuroprotective_score(compounds=[], target_pathways=['anti-inflammatory'])
+        self.assertEqual(len(result), 0)
+
+
+if __name__ == '__main__':
+    unittest.main()

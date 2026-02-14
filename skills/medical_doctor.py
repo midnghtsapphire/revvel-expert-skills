@@ -295,4 +295,194 @@ def interpret_cbc_results(cbc: Dict[str, float], age: int, gender: str) -> Dict[
     
     interpretations = {}
     for param, value in cbc.items():
-        if param.lower
+        if param.lower() in reference_ranges:
+            low, high = reference_ranges[param.lower()]
+            status = 'normal' if low <= value <= high else 'low' if value < low else 'high'
+            interpretations[param] = {
+                'value': value,
+                'reference_range': f'{low}-{high}',
+                'status': status
+            }
+    
+    return {
+        'interpretations': interpretations,
+        'patient_info': {'age': age, 'gender': gender},
+        'flags': [k for k, v in interpretations.items() if v['status'] != 'normal']
+    }
+
+
+def generate_differential_diagnosis(symptoms: List[str], age: int, gender: str,
+                                     medical_history: List[str] = None) -> List[Dict[str, Any]]:
+    """Generate differential diagnosis based on symptoms."""
+    symptom_disease_map = {
+        'chest_pain': [
+            {'condition': 'Acute Coronary Syndrome', 'probability': 0.3, 'urgency': 'emergent'},
+            {'condition': 'Pulmonary Embolism', 'probability': 0.15, 'urgency': 'emergent'},
+            {'condition': 'Costochondritis', 'probability': 0.2, 'urgency': 'routine'},
+            {'condition': 'GERD', 'probability': 0.25, 'urgency': 'routine'},
+            {'condition': 'Pneumothorax', 'probability': 0.1, 'urgency': 'emergent'}
+        ],
+        'headache': [
+            {'condition': 'Tension Headache', 'probability': 0.4, 'urgency': 'routine'},
+            {'condition': 'Migraine', 'probability': 0.3, 'urgency': 'routine'},
+            {'condition': 'Subarachnoid Hemorrhage', 'probability': 0.05, 'urgency': 'emergent'},
+            {'condition': 'Meningitis', 'probability': 0.05, 'urgency': 'emergent'},
+            {'condition': 'Sinusitis', 'probability': 0.2, 'urgency': 'routine'}
+        ],
+        'abdominal_pain': [
+            {'condition': 'Appendicitis', 'probability': 0.15, 'urgency': 'urgent'},
+            {'condition': 'Cholecystitis', 'probability': 0.1, 'urgency': 'urgent'},
+            {'condition': 'Gastritis', 'probability': 0.25, 'urgency': 'routine'},
+            {'condition': 'Pancreatitis', 'probability': 0.1, 'urgency': 'urgent'},
+            {'condition': 'IBS', 'probability': 0.2, 'urgency': 'routine'}
+        ],
+        'shortness_of_breath': [
+            {'condition': 'Asthma', 'probability': 0.25, 'urgency': 'urgent'},
+            {'condition': 'COPD Exacerbation', 'probability': 0.2, 'urgency': 'urgent'},
+            {'condition': 'Heart Failure', 'probability': 0.15, 'urgency': 'emergent'},
+            {'condition': 'Pneumonia', 'probability': 0.2, 'urgency': 'urgent'},
+            {'condition': 'Anxiety', 'probability': 0.15, 'urgency': 'routine'}
+        ]
+    }
+    
+    differentials = []
+    seen = set()
+    for symptom in symptoms:
+        symptom_key = symptom.lower().replace(' ', '_')
+        if symptom_key in symptom_disease_map:
+            for dx in symptom_disease_map[symptom_key]:
+                if dx['condition'] not in seen:
+                    differentials.append(dx)
+                    seen.add(dx['condition'])
+    
+    # Adjust for age
+    if age > 65:
+        for dx in differentials:
+            if dx['urgency'] == 'emergent':
+                dx['probability'] = min(dx['probability'] * 1.3, 1.0)
+    
+    differentials.sort(key=lambda x: x['probability'], reverse=True)
+    return differentials
+
+
+def check_drug_interactions(medications: List[str]) -> List[Dict[str, Any]]:
+    """Check for known drug interactions."""
+    interaction_db = {
+        ('warfarin', 'aspirin'): {'severity': 'major', 'effect': 'Increased bleeding risk'},
+        ('metformin', 'contrast_dye'): {'severity': 'major', 'effect': 'Risk of lactic acidosis'},
+        ('ssri', 'maoi'): {'severity': 'contraindicated', 'effect': 'Serotonin syndrome risk'},
+        ('ace_inhibitor', 'potassium'): {'severity': 'major', 'effect': 'Hyperkalemia risk'},
+        ('statin', 'grapefruit'): {'severity': 'moderate', 'effect': 'Increased statin levels'},
+        ('methotrexate', 'nsaid'): {'severity': 'major', 'effect': 'Increased methotrexate toxicity'}
+    }
+    
+    interactions = []
+    med_lower = [m.lower() for m in medications]
+    
+    for (drug_a, drug_b), info in interaction_db.items():
+        if drug_a in med_lower and drug_b in med_lower:
+            interactions.append({
+                'drug_a': drug_a,
+                'drug_b': drug_b,
+                'severity': info['severity'],
+                'effect': info['effect']
+            })
+    
+    return interactions
+
+
+def lookup_icd10(search_term: str) -> List[Dict[str, str]]:
+    """Look up ICD-10 codes by search term."""
+    icd10_db = {
+        'diabetes': [{'code': 'E11.9', 'description': 'Type 2 diabetes mellitus without complications'},
+                     {'code': 'E10.9', 'description': 'Type 1 diabetes mellitus without complications'}],
+        'hypertension': [{'code': 'I10', 'description': 'Essential (primary) hypertension'}],
+        'heart_failure': [{'code': 'I50.9', 'description': 'Heart failure, unspecified'},
+                          {'code': 'I50.20', 'description': 'Unspecified systolic heart failure'}],
+        'pneumonia': [{'code': 'J18.9', 'description': 'Pneumonia, unspecified organism'}],
+        'depression': [{'code': 'F32.9', 'description': 'Major depressive disorder, single episode, unspecified'}],
+        'asthma': [{'code': 'J45.909', 'description': 'Unspecified asthma, uncomplicated'}]
+    }
+    
+    results = []
+    search_lower = search_term.lower()
+    for key, codes in icd10_db.items():
+        if search_lower in key:
+            results.extend(codes)
+    return results
+
+
+class SkillEngine:
+    """Medical Doctor / Physician Expert skill engine."""
+    
+    def __init__(self):
+        self.name = SKILL_METADATA['name']
+        self.version = SKILL_METADATA['version']
+    
+    def run(self, action: str, **kwargs) -> Dict[str, Any]:
+        actions = {
+            'differential_diagnosis': lambda: generate_differential_diagnosis(**kwargs),
+            'interpret_cbc': lambda: interpret_cbc_results(**kwargs),
+            'drug_interactions': lambda: check_drug_interactions(**kwargs),
+            'icd10_lookup': lambda: lookup_icd10(**kwargs),
+            'calculate_gfr': lambda: calculate_gfr(**kwargs),
+            'calculate_meld': lambda: calculate_meld(**kwargs),
+        }
+        if action in actions:
+            return actions[action]()
+        return {'error': f'Unknown action: {action}'}
+
+
+class TestMedicalDoctor(unittest.TestCase):
+    """Unit tests for Medical Doctor skill."""
+    
+    def test_metadata(self):
+        self.assertEqual(SKILL_METADATA['id'], 'medical_doctor')
+    
+    def test_cbc_interpretation(self):
+        cbc = {'wbc': 7.5, 'hemoglobin': 14.0, 'platelets': 250}
+        result = interpret_cbc_results(cbc, age=45, gender='male')
+        self.assertIn('interpretations', result)
+        self.assertEqual(len(result['flags']), 0)
+    
+    def test_cbc_abnormal(self):
+        cbc = {'wbc': 15.0, 'hemoglobin': 8.0, 'platelets': 100}
+        result = interpret_cbc_results(cbc, age=45, gender='male')
+        self.assertGreater(len(result['flags']), 0)
+    
+    def test_differential_diagnosis(self):
+        result = generate_differential_diagnosis(
+            symptoms=['chest_pain'], age=55, gender='male'
+        )
+        self.assertIsInstance(result, list)
+        self.assertGreater(len(result), 0)
+    
+    def test_drug_interactions(self):
+        result = check_drug_interactions(['warfarin', 'aspirin'])
+        self.assertGreater(len(result), 0)
+        self.assertEqual(result[0]['severity'], 'major')
+    
+    def test_no_drug_interactions(self):
+        result = check_drug_interactions(['metformin', 'lisinopril'])
+        self.assertEqual(len(result), 0)
+    
+    def test_icd10_lookup(self):
+        result = lookup_icd10('diabetes')
+        self.assertGreater(len(result), 0)
+        self.assertIn('E11.9', [r['code'] for r in result])
+    
+    def test_meld_score(self):
+        score = calculate_meld(bilirubin=2.0, creatinine=1.5, inr=1.5)
+        self.assertIsInstance(score, float)
+        self.assertGreater(score, 0)
+    
+    def test_skill_engine(self):
+        engine = SkillEngine()
+        self.assertEqual(engine.name, 'Medical Doctor / Physician Expert')
+    
+    def test_prompts_exist(self):
+        self.assertGreater(len(EXPERT_PROMPTS), 0)
+
+
+if __name__ == '__main__':
+    unittest.main()
