@@ -6,6 +6,7 @@ import os
 import sys
 
 SKILL_MODULES = [
+    "email_technology_expert",
     "advanced_manufacturing",
     "anti_aging",
     "biocomposites_formulation",
